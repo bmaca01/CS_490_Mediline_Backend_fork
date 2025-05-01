@@ -1,9 +1,10 @@
 import os
 
-from flask import Flask
+from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
-from flask_socketio import SocketIO, emit
+from flask_jwt_extended.utils import decode_token
+from flask_socketio import SocketIO, emit, join_room
 from flasgger import Swagger
 
 from socketio import KombuManager
@@ -75,14 +76,23 @@ def handle_create_something(json):
 
 @task_success.connect
 def handle_prescription_success(sender=None, result=None, **kwargs):
-    kombu_mgr.emit('new_rx', data=result, namespace='/pharmacy')
+    target_pharm = result['pharmacy_id']
+    #print(target_pharm)
+    kombu_mgr.emit(
+        'new_rx', 
+        data=result, 
+        namespace='/pharmacy',
+        to=str(target_pharm)
+    )
 
 @sio.event(namespace='/pharmacy')
-def connect(sid):
-    print(f'connected: {sid}')
-    emit('connected to pharmacy', {'sid': sid})
-    return sid
+def connect():
+    emit('connected to pharmacy')
 
-@sio.on('token', namespace='/pharmacy')
+@sio.on('join', namespace='/pharmacy')
 def handle_token(data):
-    print(f'recieved data {data}')
+    #print(request.sid)
+    #print(f'recieved data {data}')
+    uid = decode_token(data)['sub']
+    join_room(uid)
+
