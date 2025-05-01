@@ -105,7 +105,7 @@ def get_last_completed_appointment(patient_id, doctor_id):
 @jwt_required()
 @swag_from('../docs/doctor_routes/doctor_general_discussions.yml')
 def get_doctor_general_discussions(doctor_id):
-      if (current_user.user_id != doctor_id 
+    if (current_user.user_id != doctor_id 
         and current_user.account_type.name != 'SuperUser'):
         return USER_NOT_AUTHORIZED(current_user.user_id) 
     return jsonify(doctor_general_discussion(doctor_id)), 200

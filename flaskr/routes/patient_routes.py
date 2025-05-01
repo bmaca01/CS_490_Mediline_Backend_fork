@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
 from flaskr.models import User
-from flaskr.services import patient_info, get_patient_info, update_patient, patient_medical_history, create_medical_record, update_primary_pharmacy, token_required, USER_NOT_AUTHORIZED
+from flaskr.services import get_patient_info, update_patient, patient_medical_history, create_medical_record, update_primary_pharmacy, token_required, USER_NOT_AUTHORIZED
 from flasgger import swag_from
 
 from sqlalchemy.exc import OperationalError, IntegrityError
@@ -13,7 +13,7 @@ patient_bp = Blueprint('patient_bp', __name__)
 @swag_from('../docs/patient_routes/get_patient_info_self_authenticated.yml')
 def get_patient_info_self_authenticated():
     user_id = current_user.user_id
-    result = patient_info(user_id)
+    result = get_patient_info(user_id)
     if result:
         return jsonify(result), 200
     return jsonify({"error": "Patient not found"}), 404
@@ -46,7 +46,7 @@ def get_patient_info_other_authenticated(user_id):
                 pass
         case _:
             return USER_NOT_AUTHORIZED()
-    result = patient_info(user_id)
+    result = get_patient_info(user_id)
     if result:
         return jsonify(result), 200
     return jsonify({"error": "Patient not found"}), 404
