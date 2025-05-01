@@ -82,7 +82,7 @@ def handle_prescription_success(sender=None, result=None, **kwargs):
         'new_rx', 
         data=result, 
         namespace='/pharmacy',
-        to=str(target_pharm)
+        #to=str(target_pharm)
     )
 
 @sio.event(namespace='/pharmacy')
