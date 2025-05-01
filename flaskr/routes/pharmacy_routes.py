@@ -1,4 +1,3 @@
-
 from kombu.exceptions import OperationalError as MQOpErr
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, current_user
@@ -28,6 +27,7 @@ def get_pharmacy_patients(pharmacy_id):
         return jsonify({'error': 'An error occurred while fetching the medications history'}), 500
 
 @pharmacy_bp.route('/<int:pharmacy_id>', methods=['POST'])
+@jwt_required()
 @swag_from('../docs/pharmacy_routes/post_patient_prescription.yml')
 def post_patient_prescription(pharmacy_id):
     data = request.get_json()
@@ -38,10 +38,17 @@ def post_patient_prescription(pharmacy_id):
     patient_id = data.get('patient_id')
     doctor_id = data.get('doctor_id')
     medications = data.get('medications')
-
     # perform validation
     if not all([patient_id, doctor_id, medications]):
         return jsonify(error='missing required fields'), 400
+
+    _user_id = current_user.user_id
+    _acct_type = current_user.account_type.name
+    match _acct_type:
+        case 'SuperUser' | 'Doctor' if _user_id == doctor_id:
+            pass
+        case _:
+            return USER_NOT_AUTHORIZED(_user_id)
     if len(medications) == 0:
         return jsonify(error='no medications in prescription'), 400
     if not all([isinstance(med, dict) for med in medications]):

@@ -37,7 +37,7 @@ def send_rx(pharmacy_id, patient_id, doctor_id, medications):
             medication_id=med['medication_id'],
             dosage=med['dosage'],
             medical_instructions=med['instructions'],
-            taken_date=datetime.now(),      # what is this supposed to be?
+            taken_date=datetime.now(),
             duration=20
         )
         db.session.add(new_pt_rx_request)

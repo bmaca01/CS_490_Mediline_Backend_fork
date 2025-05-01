@@ -75,4 +75,14 @@ def handle_create_something(json):
 
 @task_success.connect
 def handle_prescription_success(sender=None, result=None, **kwargs):
-    kombu_mgr.emit('new_rx', data=result, namespace='/test')
+    kombu_mgr.emit('new_rx', data=result, namespace='/pharmacy')
+
+@sio.event(namespace='/pharmacy')
+def connect(sid):
+    print(f'connected: {sid}')
+    emit('connected to pharmacy', {'sid': sid})
+    return sid
+
+@sio.on('token', namespace='/pharmacy')
+def handle_token(data):
+    print(f'recieved data {data}')
