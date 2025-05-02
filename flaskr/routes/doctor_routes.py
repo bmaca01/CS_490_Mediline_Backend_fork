@@ -9,7 +9,7 @@ from flasgger import swag_from
 from flaskr.services import select_doctor, all_doctors, doctor_details, total_patients, upcoming_appointments_count, pending_appointments_count,doctor_patients_count, todays_patient, doctor_rating_detail, last_completed_appointment, doctor_general_discussion, new_appointments_request, update_doctor
 from sqlalchemy.exc import OperationalError, IntegrityError
 
-doctor_bp = Blueprint('doctor_bp', __name__, url_prefix='/doctors')
+doctor_bp = Blueprint('doctor_bp', __name__)
 
 ### ---PUBLIC ROUTES---
 @doctor_bp.route('/', methods=['GET'])
@@ -17,14 +17,6 @@ doctor_bp = Blueprint('doctor_bp', __name__, url_prefix='/doctors')
 def get_all_doctors():
     doctors = all_doctors()
     return jsonify(doctors), 200
-
-@doctor_bp.route('/<int:doctor_id>', methods=['GET'])
-@swag_from('../docs/doctor_routes/get_doctor_by_id.yml')
-def get_doctor_by_id(doctor_id):
-    doctor = doctor_details(doctor_id)
-    if doctor:
-        return jsonify(doctor), 200
-    return jsonify({"error": "Doctor not found"}), 404
 
 @doctor_bp.route('/<int:doctor_id>/doctor-patients/count', methods=['GET'])
 @swag_from('../docs/doctor_routes/count_doctor_patients.yml')

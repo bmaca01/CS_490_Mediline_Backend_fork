@@ -1,9 +1,9 @@
-Get info of a patient given their ID
+Get info of a user given their ID
 ---
 tags: 
-  - patient
+  - user
 parameters:
-  - name: patient_id
+  - name: user_id
     in: path
     type: integer
     required: true
