@@ -1,4 +1,4 @@
-Get patient info given user_id
+Get info of a user given their ID
 ---
 tags: 
   - user

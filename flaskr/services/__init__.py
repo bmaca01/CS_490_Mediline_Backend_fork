@@ -13,9 +13,10 @@ from .prescription_service import get_medications_by_prescription, get_prescript
 from .chat_service import get_current_chat, add_message
 from .social_media_service import get_all_posts, get_comments_of_post
 from .doctor_service import all_doctors, doctor_details, total_patients, upcoming_appointments_count, pending_appointments_count, doctor_patients_count, todays_patient, doctor_rating_detail, last_completed_appointment, doctor_general_discussion, select_doctor
-from .pharmacy_service import get_all_pharmacy_patients, add_pt_rx
-from .patient_service import patient_info, update_patient
+from .pharmacy_service import get_all_pharmacy_patients, add_pt_rx, get_pharmacy_info
+from .patient_service import get_patient_info, patient_info, update_patient
 from .registration_service import add_user
+from .user_service import get_user_info_by_id
 
 __all__ = [
     'user_id_credentials',
@@ -28,10 +29,22 @@ __all__ = [
     'get_current_chat', 'add_message', 
     'get_all_posts', 'get_comments_of_post',
     'all_doctors', 'doctor_details', 'total_patients', 'upcoming_appointments_count', 'pending_appointments_count', 'doctor_patients_count', 'todays_patient', 'doctor_rating_detail', 'last_completed_appointment', 'doctor_general_discussion', 'select_doctor',
-    'get_all_pharmacy_patients',
-    'patient_info', 'update_patient',
-    'add_user'
+    'get_all_pharmacy_patients', 'add_pt_rx', 'get_pharmacy_info',
+    'get_patient_info','patient_info', 'update_patient',
+    'add_user',
+    'get_user_info_by_id'
 ]
+
+# AUTHORIZATION EXCEPTION RESPONSES
+class UnauthorizedError(JWTExtendedException):
+    pass
+def USER_NOT_AUTHORIZED(uid: int|None=None) -> Response:
+    if uid:
+        return jsonify({
+            'error': f'User with id {uid} does not have permission to this resource'
+        }), 401
+    return jsonify({'error': 'User does not have permission to this resource'}), 401
+
 
 # Depreciated
 def token_required(f):
@@ -61,13 +74,3 @@ def token_required(f):
             print(f'exception thrown message: {e}')
             return jsonify(invalid_msg), 401
     return _verify
-
-# AUTHORIZATION EXCEPTION RESPONSES
-class UnauthorizedError(JWTExtendedException):
-    pass
-def USER_NOT_AUTHORIZED(uid: int|None=None) -> Response:
-    if uid:
-        return jsonify({
-            'error': f'User with id {uid} does not have permission to this resource'
-        }), 401
-    return jsonify({'error': 'User does not have permission to this resource'}), 401

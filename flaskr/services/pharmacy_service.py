@@ -3,7 +3,7 @@ from sqlalchemy import func
 
 from celery.result import AsyncResult
 
-from flaskr.models import Prescription, Patient
+from flaskr.models import Prescription, Patient, Pharmacy
 from flaskr.extensions import db
 from flaskr.tasks import send_rx
 
@@ -45,3 +45,10 @@ def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications):
     except Exception as e:
         raise e
     return res.status
+
+def get_pharmacy_info(pharmacy_id):
+    pharmacy = Pharmacy.query.filter_by(user_id=pharmacy_id).first()
+    if not pharmacy:
+        return None
+
+    return pharmacy.to_dict()

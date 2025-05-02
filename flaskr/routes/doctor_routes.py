@@ -7,7 +7,7 @@ from flaskr.services import all_doctors, doctor_details, total_patients, \
     USER_NOT_AUTHORIZED, UnauthorizedError
 from flasgger import swag_from
 
-doctor_bp = Blueprint('doctor_bp', __name__, url_prefix='/doctors')
+doctor_bp = Blueprint('doctor_bp', __name__)
 
 ### ---PUBLIC ROUTES---
 @doctor_bp.route('/', methods=['GET'])

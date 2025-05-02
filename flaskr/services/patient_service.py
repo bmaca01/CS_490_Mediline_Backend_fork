@@ -49,6 +49,8 @@ def patient_info(user_id):
         "country": patient.user.address.city.country.country
     }
 
+get_patient_info = patient_info
+
 def update_patient(user_id, updates: dict) -> dict:
     #patient: Patient = Patient.query.filter_by(user_id=user_id).first()
     patient: User = db.session.scalar(
