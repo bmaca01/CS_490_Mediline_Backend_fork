@@ -1,22 +1,17 @@
-import time
 from datetime import datetime
 from celery import shared_task
 from flaskr.extensions import db
 from flaskr.models import Prescription, PrescriptionMedication
 from flaskr.struct import PrescriptionStatus
 
-@shared_task(ignore_result=False)
-def my_task(m1: str, m2: str):
-    #time.sleep(5)
-    print(f'm1 is {m1}')
-    #time.sleep(5)
-    print(f'm2 is {m2}')
-    #time.sleep(5)
-    return ' '.join([m1, m2])
-
-@shared_task(ignore_result=False)
-def send_rx(pharmacy_id, patient_id, doctor_id, medications):
+@shared_task(bind=True, ignore_result=False)
+def send_rx(self,
+            pharmacy_id: int|None=None, 
+            patient_id: int|None=None, 
+            doctor_id: int|None=None, 
+            medications: list|None=None):
     # 1) create entry in prescription table
+    #print(self.request.id)
     new_rx = Prescription(
         patient_id=patient_id,
         doctor_id=doctor_id,
@@ -49,7 +44,7 @@ def send_rx(pharmacy_id, patient_id, doctor_id, medications):
         db.session.commit()
     except Exception as e:
         raise e
-    return {
+    return self.request.id, {
         'prescription_id': new_rx.prescription_id,
         'patient_id': patient_id,
         'doctor_id': doctor_id,

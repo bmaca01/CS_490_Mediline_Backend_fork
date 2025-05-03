@@ -39,9 +39,15 @@ def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - tim
     }
 
 def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications):
-    # TODO: detect duplicates
+    # TODO: detect duplicates / make idempotent
     try:
-        res: AsyncResult = send_rx.apply_async(args=[pharmacy_id, patient_id, doctor_id, medications])
+        res: AsyncResult = send_rx.apply_async(
+            kwargs={
+                'pharmacy_id': pharmacy_id, 
+                'patient_id': patient_id, 
+                'doctor_id': doctor_id, 
+                'medications': medications
+            })
     except Exception as e:
         raise e
     return res.status

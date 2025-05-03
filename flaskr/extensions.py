@@ -1,17 +1,15 @@
 import os
 
-from flask import Flask, request
+from flask import Flask
+from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
-from flask_jwt_extended.utils import decode_token
-from flask_socketio import SocketIO, emit, join_room
+from flask_socketio import SocketIO
 from flasgger import Swagger
 
 from socketio import KombuManager
 from celery import Celery, Task
-from celery.signals import task_success
 from google.cloud.sql.connector import Connector, IPTypes
-
 
 def celery_init_app(app: Flask) -> Celery:
     class FlaskTask(Task):
@@ -36,6 +34,7 @@ swag = Swagger(
 )
 
 jwt = JWTManager()
+server_sess = Session()
 
 ## SocketIO stuff
 # TODO: replace with environment variables
@@ -52,47 +51,6 @@ sio = SocketIO(
     always_connect=True, 
     namespaces='*',
     logger=True,
+    engineio_logger=True,
     client_manager=kombu_mgr
 )
-@sio.event(namespace='/test')
-def connect(sid):
-    print(f'connected: {sid}')
-    emit('connected', {'sid': sid})
-
-@sio.event(namespace='/test')
-def disconnect(reason):
-    print('disconnect ', reason)
-
-@sio.on('foo', namespace='/test')
-def handle_foo(sid, data):
-    print(f'recieved from {sid}: {data}')
-    return data, sid
-
-@sio.on('create_something', namespace='/test')
-def handle_create_something(json):
-    print(f'data: {json}')
-    emit('foo', json)
-    return json
-
-@task_success.connect
-def handle_prescription_success(sender=None, result=None, **kwargs):
-    target_pharm = result['pharmacy_id']
-    #print(target_pharm)
-    kombu_mgr.emit(
-        'new_rx', 
-        data=result, 
-        namespace='/pharmacy',
-        #to=str(target_pharm)
-    )
-
-@sio.event(namespace='/pharmacy')
-def connect():
-    emit('connected to pharmacy')
-
-@sio.on('join', namespace='/pharmacy')
-def handle_token(data):
-    #print(request.sid)
-    #print(f'recieved data {data}')
-    uid = decode_token(data)['sub']
-    join_room(uid)
-

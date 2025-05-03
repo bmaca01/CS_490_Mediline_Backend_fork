@@ -1,11 +1,12 @@
 import os
 
+from redis import Redis
 from werkzeug.exceptions import HTTPException
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_migrate import Migrate
 
-from flaskr.extensions import db, swag, jwt, celery_init_app, sio
+from flaskr.extensions import db, swag, jwt, celery_init_app, sio, server_sess
 from flaskr.models import User
 from flaskr.routes import register_routes
 from flaskr.cli import register_commands
@@ -76,11 +77,14 @@ def create_app(config_mapping: dict|None=None):
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key')
     app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key')
     app.config['SWAGGER'] = { 'doc_dir': './docs/' }
+    app.config['SESSION_TYPE'] = 'redis'
+    app.config['SESSION_REDIS'] = Redis(host='localhost', port=6379)
 
     db.init_app(app)
     migrate = Migrate(app, db)
     swag.init_app(app)
     jwt.init_app(app)
+    server_sess.init_app(app)
     ### TODO: Move these registrations somewhere else for code cleanliness maybe
     ## Register jwt related callbacks here to prevent circular import
     # Callback that returns user_id
