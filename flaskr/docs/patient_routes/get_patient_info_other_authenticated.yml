@@ -1,4 +1,4 @@
-Get info of a patient given their ID
+Get patient info given user_id
 ---
 tags: 
   - patient
@@ -7,10 +7,10 @@ parameters:
     in: path
     type: integer
     required: true
-    description: User ID (patient, doctor, or pharmacy)
+    description: Patient ID
 responses:
   200:
-    description: Get all user info
+    description: Get all patient info
     schema:
       type: object
       properties:
@@ -109,7 +109,7 @@ responses:
           country: Country
           zipcode: 01122
   404:
-    description: user not found
+    description: patient not found
     schema:
       type: object
       properties:
@@ -117,4 +117,4 @@ responses:
           type: string
     examples:
       application/json: 
-        error: User not found
+        error: Patient not found

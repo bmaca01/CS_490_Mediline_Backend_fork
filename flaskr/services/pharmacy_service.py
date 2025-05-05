@@ -7,7 +7,6 @@ from flaskr.models import Prescription, Patient, Pharmacy
 from flaskr.extensions import db
 from flaskr.tasks import send_rx
 
-
 def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - timedelta(hours=24)):
     rows = (
         db.session.query(

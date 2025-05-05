@@ -4,7 +4,7 @@ from flaskr.services import all_doctors, doctor_details, total_patients, \
     upcoming_appointments_count, pending_appointments_count, \
     doctor_patients_count, todays_patient, doctor_rating_detail, \
     last_completed_appointment, doctor_general_discussion, select_doctor, \
-    new_appointments_request, update_doctor, \
+    new_appointments_request, update_doctor, assign_survey, \
     USER_NOT_AUTHORIZED, UnauthorizedError
 from flasgger import swag_from
 from sqlalchemy.exc import OperationalError, IntegrityError
@@ -17,12 +17,25 @@ doctor_bp = Blueprint('doctor_bp', __name__)
 def get_all_doctors():
     sort_by = request.args.get('sort_by', 'user_id')
     order = request.args.get('order', 'asc')
-
     try:
         doctors = all_doctors(sort_by=sort_by, order=order)
         return jsonify(doctors), 200
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@doctor_bp.route('/<int:doctor_id>', methods=['GET'])
+@swag_from('../docs/doctor_routes/get_doctor_by_id.yml')
+def get_doctor_by_id(doctor_id):
+    doctor = doctor_details(doctor_id)
+    if doctor:
+        return jsonify(doctor), 200
+    return jsonify({"error": "Doctor not found"}), 404
+
+@doctor_bp.route('/<int:doctor_id>/total-patients', methods=['GET'])
+def total(doctor_id):
+    return jsonify({"total_patients": total_patients(doctor_id)}), 200
 
 @doctor_bp.route('/<int:doctor_id>/doctor-patients/count', methods=['GET'])
 @swag_from('../docs/doctor_routes/count_doctor_patients.yml')
@@ -137,3 +150,22 @@ def update_doctor_info(user_id):
         return jsonify(result), 200
     return jsonify(result), 404
 ### ---END PROTECTED ROUTES---
+
+@doctor_bp.route('/survey/<int:doctor_id>', methods=['POST'])
+@swag_from('../docs/doctor_routes/assign_survey_rating.yml')
+def assign_survey_rating(doctor_id):
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "No input data provided"}), 400
+   
+    patient_id = data.get('patient_id')
+    stars = data.get('stars')
+    comment = data.get('comment')
+
+    if not patient_id or not stars:
+        return jsonify({"error":"patient id and stars are required"})
+    result = assign_survey(doctor_id, patient_id, stars, comment)
+
+    if "error" in result:
+        return jsonify(result), 400
+    return jsonify(result), 201
