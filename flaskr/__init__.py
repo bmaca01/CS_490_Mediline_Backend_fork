@@ -56,11 +56,17 @@ def create_app(config_mapping: dict|None=None):
                 }
             )
         )
+        app.config['SESSION_TYPE'] = 'redis'
+        # Dev config
+        app.config['SESSION_REDIS'] = Redis(
+            host="localhost", 
+            port=6379
+        )
     else:
         # Production on gcloud
-        # TODO: celery integration
         from flaskr.extensions import connector
         from pymysql.connections import Connection
+        # Cloud SQL
         instance_conn_name = os.getenv("INSTANCE_CONNECTION_NAME")
         def getconn() -> Connection:
             conn: Connection = connector.connect(
@@ -73,12 +79,31 @@ def create_app(config_mapping: dict|None=None):
             return conn
         app.config['SQLALCHEMY_ENGINE_OPTIONS'] = { "creator": getconn }
         app.config['SQLALCHEMY_DATABASE_URI'] = connection_string
+        # MQ integration
+        app.config.from_mapping(
+            CELERY=dict(
+                broker_url=os.getenv("QUEUE_URL"),
+                result_backend="rpc://",
+                task_ignore_result=True,
+                task_routes={
+                    'flaskr.tasks.*': {'queue': 'prescription_queue'}
+                }
+            )
+        )
+        app.config['SESSION_TYPE'] = 'redis'
+        # Prod config
+        app.config['SESSION_REDIS'] = Redis(
+            host=os.getenv("REDIS_HOST"),
+            port=int(os.getenv("REDIS_PORT")),
+            decode_responses=True,
+            username=os.getenv("REDIS_USER"),
+            password=os.getenv("REDIS_PASS"),
+        )
+
                                             
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key')
     app.config['JWT_SECRET_KEY'] = os.getenv('SECRET_KEY', 'super-secret-key')
     app.config['SWAGGER'] = { 'doc_dir': './docs/' }
-    app.config['SESSION_TYPE'] = 'redis'
-    app.config['SESSION_REDIS'] = Redis(host='localhost', port=6379)
 
     db.init_app(app)
     migrate = Migrate(app, db)

@@ -39,7 +39,7 @@ server_sess = Session()
 ## SocketIO stuff
 # TODO: replace with environment variables
 kombu_mgr = KombuManager(
-    'amqp://abc:abc@localhost:5672/test_vhost',
+    os.environ.get('QUEUE_URL'),
     queue_options={
         'queue': 'prescription_queue',
         'routing_key': 'prescription_queue'
