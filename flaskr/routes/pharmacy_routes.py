@@ -1,11 +1,11 @@
 from kombu.exceptions import OperationalError as MQOpErr
 from flask import Blueprint, jsonify, request, current_app
-from flask_socketio import emit, join_room, rooms
+from flask_socketio import emit
 from flask_jwt_extended import jwt_required, current_user
 from flask_jwt_extended.utils import decode_token
 from flaskr.models import User
 from flaskr.services import get_all_pharmacy_patients, add_pt_rx, USER_NOT_AUTHORIZED
-from flaskr.extensions import sio, kombu_mgr
+from flaskr.extensions import sio
 from celery.signals import task_success
 from flasgger import swag_from
 
@@ -90,12 +90,6 @@ def connect():
 def handle_token(data):
     uid = decode_token(data)['sub']
     current_app.config['SESSION_REDIS'].set(uid, request.sid)
-    join_room(room=uid,
-              sid=request.sid,
-              namespace='/pharmacy')
-    kombu_mgr.enter_room(sid=request.sid,
-                         namespace='/pharmacy',
-                         room=uid)
 
 @sio.on('message', namespace='/pharmacy')
 def handle_message(message):
@@ -106,7 +100,6 @@ def handle_message(message):
 def handle_prescription_success(sender=None, headers=None,
                                 body=None, result=None, **kwargs):
     task_id, result = result
-    #print(sender.request)
     from flaskr.main import flask_app
     with flask_app.app_context():
         recipient = (flask_app.config['SESSION_REDIS']
