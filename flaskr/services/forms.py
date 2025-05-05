@@ -39,7 +39,7 @@ class AddressForm(Form):
 
 
 class UserRegistrationForm(AddressForm):
-    _phone_num_regexp = "^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$"
+    _phone_num_regexp = r"^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$"
     username        =   StringField('Username', [
                             length(4, 80),
                             validators.InputRequired()
