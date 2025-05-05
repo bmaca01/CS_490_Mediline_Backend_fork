@@ -4,9 +4,9 @@ from flaskr.services import all_doctors, doctor_details, total_patients, \
     upcoming_appointments_count, pending_appointments_count, \
     doctor_patients_count, todays_patient, doctor_rating_detail, \
     last_completed_appointment, doctor_general_discussion, select_doctor, \
+    new_appointments_request, update_doctor, \
     USER_NOT_AUTHORIZED, UnauthorizedError
 from flasgger import swag_from
-from flaskr.services import select_doctor, all_doctors, doctor_details, total_patients, upcoming_appointments_count, pending_appointments_count,doctor_patients_count, todays_patient, doctor_rating_detail, last_completed_appointment, doctor_general_discussion, new_appointments_request, update_doctor
 from sqlalchemy.exc import OperationalError, IntegrityError
 
 doctor_bp = Blueprint('doctor_bp', __name__)
@@ -15,8 +15,14 @@ doctor_bp = Blueprint('doctor_bp', __name__)
 @doctor_bp.route('/', methods=['GET'])
 @swag_from('../docs/doctor_routes/get_all_doctors.yml')
 def get_all_doctors():
-    doctors = all_doctors()
-    return jsonify(doctors), 200
+    sort_by = request.args.get('sort_by', 'user_id')
+    order = request.args.get('order', 'asc')
+
+    try:
+        doctors = all_doctors(sort_by=sort_by, order=order)
+        return jsonify(doctors), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
 
 @doctor_bp.route('/<int:doctor_id>/doctor-patients/count', methods=['GET'])
 @swag_from('../docs/doctor_routes/count_doctor_patients.yml')

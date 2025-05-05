@@ -11,13 +11,21 @@ from .appointment_service import get_upcoming_appointments, add_appointment, upd
 from .report_service import get_patient_report_result, add_patient_report
 from .prescription_service import get_medications_by_prescription, get_prescriptions, get_prescription_count_by_pharmacy, get_pharmacy_medications_inventory, get_medications_history_by_patient
 from .chat_service import get_current_chat, add_message
+<<<<<<< HEAD
 from .social_media_service import get_all_posts, get_comments_of_post, delete_comment, delete_post, update_comment, update_post, create_comment, create_post
 from .doctor_service import all_doctors, doctor_details, total_patients, upcoming_appointments_count, pending_appointments_count, doctor_patients_count, todays_patient, doctor_rating_detail, last_completed_appointment, doctor_general_discussion, select_doctor, new_appointments_request, update_doctor
 from .pharmacy_service import get_all_pharmacy_patients, add_pt_rx, get_pharmacy_info
 from .patient_service import get_patient_info, update_patient, patient_medical_history, create_medical_record, update_primary_pharmacy
+=======
+from .social_media_service import get_all_posts, get_comments_of_post
+from .doctor_service import all_doctors, doctor_details, total_patients, upcoming_appointments_count, pending_appointments_count, doctor_patients_count, todays_patient, doctor_rating_detail, last_completed_appointment, doctor_general_discussion, select_doctor
+from .pharmacy_service import get_all_pharmacy_patients, get_pharmacy_info
+from .patient_service import get_patient_info, update_patient, update_doctor_by_patient_id
+>>>>>>> origin/sandbox
 from .registration_service import add_user
 from .medication_service import medication_info
 from .user_service import get_user_info_by_id
+from .request_service import add_patient_request, delete_patient_request, get_patient_requests_by_doctor_id
 
 __all__ = [
     'user_id_credentials',
@@ -31,10 +39,11 @@ __all__ = [
     'get_all_posts', 'get_comments_of_post', 'delete_comment', 'delete_post', 'update_comment', 'update_post', 'create_comment', 'create_post',
     'all_doctors', 'doctor_details', 'total_patients', 'upcoming_appointments_count', 'pending_appointments_count', 'doctor_patients_count', 'todays_patient', 'doctor_rating_detail', 'last_completed_appointment', 'doctor_general_discussion', 'select_doctor',
     'get_all_pharmacy_patients', 'get_pharmacy_info',
-    'get_patient_info', 'update_patient','patient_medical_history', 'create_medical_record', 'update_primary_pharmacy',
+    'get_patient_info', 'update_patient','patient_medical_history', 'create_medical_record', 'update_primary_pharmacy', 'update_doctor_by_patient_id',
     'add_user',
     'medication_info',
-    'get_user_info_by_id'
+    'get_user_info_by_id',
+    'add_patient_request', 'delete_patient_request', 'get_patient_requests_by_doctor_id'
 ]
 
 # Depreciated
