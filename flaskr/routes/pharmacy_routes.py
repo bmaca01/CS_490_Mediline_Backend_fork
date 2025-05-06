@@ -71,7 +71,7 @@ def post_patient_prescription(pharmacy_id):
     try:
         res = add_pt_rx(pharmacy_id, patient_id, doctor_id, medications)
     except MQOpErr as e:
-        return jsonify({'error': 'failed to send prescription'}), 500
+        return jsonify({'error': f'failed to send prescription: {str(e)}'}), 500
     except Exception as e:
         print(type(e))
         return jsonify({'error': f'{str(e)}'}), 500
