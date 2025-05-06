@@ -3,6 +3,7 @@ from sqlalchemy import func
 
 from celery.result import AsyncResult
 
+from flask import current_app
 from flaskr.models import Prescription, Patient, Pharmacy
 from flaskr.extensions import db
 from flaskr.tasks import send_rx
@@ -40,6 +41,16 @@ def get_all_pharmacy_patients(pharmacy_id, new_request_time=datetime.now() - tim
 def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications):
     # TODO: detect duplicates / make idempotent
     try:
+        res: AsyncResult = current_app.extensions['celery'].send_task(
+            "send_rx", 
+            kwargs={
+                'pharmacy_id': pharmacy_id, 
+                'patient_id': patient_id, 
+                'doctor_id': doctor_id, 
+                'medications': medications
+            }
+        )
+        """
         res: AsyncResult = send_rx.apply_async(
             kwargs={
                 'pharmacy_id': pharmacy_id, 
@@ -47,6 +58,7 @@ def add_pt_rx(pharmacy_id, patient_id, doctor_id, medications):
                 'doctor_id': doctor_id, 
                 'medications': medications
             })
+        """
     except Exception as e:
         raise e
     return res.status
