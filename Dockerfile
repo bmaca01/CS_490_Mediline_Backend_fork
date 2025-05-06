@@ -9,5 +9,5 @@ EXPOSE 8080
 COPY . work/
 WORKDIR /work/
 
-CMD ["celery", "-A", "flaskr.main", "-l", "INFO", "-Q", "prescription_queue"]
+CMD ["celery", "-A", "flaskr.main", "worker", "-l", "INFO", "-Q", "prescription_queue"]
 
