@@ -64,6 +64,7 @@ def create_app(config_mapping: dict|None=None):
         )
     else:
         # Production on gcloud
+        app.config['FLASK_ENV'] = os.getenv('FLASK_ENV') or 'production' 
         from flaskr.extensions import connector
         from pymysql.connections import Connection
         # Cloud SQL
